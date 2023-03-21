@@ -2,7 +2,7 @@ import requests, jwt, hashlib, math, time, random, os
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
-if not "images" in os.listdir(__path__):
+if not "images" in os.listdir(os.curdir):
     os.mkdir("images")
 def generate_hsl(req):
     x = "0123456789/:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -135,8 +135,8 @@ class Scrapper():
         f = open("questions.txt","a+")
         if not question in f.read().splitlines():
             f.write(question+"\n")
-            f.close()
+        f.close()
         return question, len(captcha_data["tasklist"])
 while True:
     question, images = Scrapper("4c672d35-0701-42b2-88c3-78380b0db560","discord.com").scrape_challenge()
-    print(f"Question: {question} | Number of images: {images}")
+    print(f"Question: {question} | Images Scrapped: {images}")
