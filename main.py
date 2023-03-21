@@ -1,4 +1,4 @@
-import requests, jwt, hashlib, math, time, random, os
+import requests, jwt, hashlib, math, time, random, os, threading
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
@@ -62,7 +62,6 @@ class Scrapper():
         self.sk = site_key
         self.host = host 
         self.v = requests.get("https://js.hcaptcha.com/1/api.js").text.split('nt="')[1].split('"')[0]
-        self.session = requests.Session()
     def get_c(self):
         headers = {
             'authority': 'hcaptcha.com',
@@ -82,7 +81,7 @@ class Scrapper():
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
         }
         params = {'v':self.v,'host':self.host,'sitekey':self.sk,'sc':'1','swa':'1'}
-        r = self.session.post('https://hcaptcha.com/checksiteconfig',params=params,headers=headers)
+        r = requests.post('https://hcaptcha.com/checksiteconfig',params=params,headers=headers)
         c = r.json()["c"]
         c["type"] = "hsl"
         return c
@@ -119,24 +118,28 @@ class Scrapper():
         }
         r = requests.post(f'https://hcaptcha.com/getcaptcha/{self.sk}',headers=headers,data=payload)
         return r.json()
-    def scrape_challenge(self):
-        c = self.get_c()
-        captcha_data = self.get_captcha(c,generate_hsl(c["req"]))
-        question = captcha_data["requester_question"]["en"]
-        folder_name = question.replace("Please click each image containing ","")
-        if not folder_name in os.listdir("images"):
-            os.mkdir(f"images/{folder_name}")
-        for i in captcha_data["tasklist"]:
-            image_name = i["task_key"]
-            image = requests.get(i["datapoint_uri"])
-            f = open(f"images/{folder_name}/{image_name}.png","wb")
-            f.write(image.content)
-            f.close()
-        f = open("questions.txt","a+")
-        if not question in f.read().splitlines():
-            f.write(question+"\n")
-        f.close()
-        return question, len(captcha_data["tasklist"])
-while True:
-    question, images = Scrapper("4c672d35-0701-42b2-88c3-78380b0db560","discord.com").scrape_challenge()
-    print(f"Question: {question} | Images Scrapped: {images}")
+    def scrape_challenges(self):
+        while True:
+            try:
+                c = self.get_c()
+                captcha_data = self.get_captcha(c,generate_hsl(c["req"]))
+                question = captcha_data["requester_question"]["en"]
+                folder_name = question.replace("Please click each image containing ","")
+                if not folder_name in os.listdir("images"):
+                    os.mkdir(f"images/{folder_name}")
+                for i in captcha_data["tasklist"]:
+                    image_name = i["task_key"]
+                    image = requests.get(i["datapoint_uri"])
+                    f = open(f"images/{folder_name}/{image_name}.png","wb")
+                    f.write(image.content)
+                    f.close()
+                f = open("questions.txt","a+")
+                if not question in f.read().splitlines():
+                    f.write(question+"\n")
+                f.close()
+                print(f"Question: {question} | Images Scrapped: {len(captcha_data['tasklist'])}")
+            except:
+                pass
+threads = range(int(input("Threads >> ")))
+for i in threads:
+    threading.Thread(target=Scrapper("4c672d35-0701-42b2-88c3-78380b0db560","discord.com").scrape_challenges).start()
