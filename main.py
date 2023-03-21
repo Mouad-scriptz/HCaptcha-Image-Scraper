@@ -12,13 +12,11 @@ def generate_hsl(req):
                 return True
             r[t] = 0
         return False
-
     def i(r):
         t = ""
         for n in range(len(r)):
             t += x[r[n]]
         return t
-
     def o(r, e):
         n = e
         hashed = hashlib.sha1(e.encode())
@@ -36,7 +34,6 @@ def generate_hsl(req):
                 return x.index(y)
             return -1
         return 0 == a[0] and index2(a, 1) >= r - 1 or -1 == index2(a, 1)
-
     def get():
         for e in range(25):
             n = [0 for i in range(e)]
@@ -44,7 +41,6 @@ def generate_hsl(req):
                 u = req["d"] + "::" + i(n)
                 if o(req["s"], u):
                     return i(n)
-
     result = get()
     hsl = ":".join([
         "1",
@@ -141,4 +137,4 @@ class Scrapper():
         return question, len(captcha_data["tasklist"])
 while True:
     question, images = Scrapper("4c672d35-0701-42b2-88c3-78380b0db560","discord.com").scrape_challenge()
-    print(f"{question} | {images}")
+    print(f"Question: {question} | Number of images: {images}")
