@@ -2,6 +2,8 @@ import requests, jwt, hashlib, math, time, random, os
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
+if not "images" in os.listdir(__path__):
+    os.mkdir("images")
 def generate_hsl(req):
     x = "0123456789/:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     req = jwt.decode(req,options={"verify_signature":False})
