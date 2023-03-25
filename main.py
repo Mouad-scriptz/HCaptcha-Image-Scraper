@@ -136,9 +136,9 @@ class Scrapper():
                 if not folder_name in os.listdir("images"):
                     os.mkdir(f"images/{folder_name}")
                 for i in captcha_data["tasklist"]:
-                    image_name = i["task_key"]
                     image = self.session.get(i["datapoint_uri"])
-                    f = open(f"images/{folder_name}/{image_name}.png","wb")
+                    image_name = hashlib.md5(image).hexdigest()
+                    f = open(f"images/{folder_name}/{image_name}.jpg","wb")
                     f.write(image.content)
                     f.close()
                 f = open("questions.txt","a+")
