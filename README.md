@@ -1,8 +1,9 @@
 # HCaptcha-Images-Scrapper
-A Fast hcaptcha images scraipper that scrapes captcha images and questions for what every you need those for.
+A Fast hcaptcha images scrapper that scrapes captcha images and questions for what every you need those for.
 
 # How to use
-1. run main.py
+1. add proxies to proxies.txt (free ones work)
+2. run main.py
 
 # Preview
 ![image](https://user-images.githubusercontent.com/102869034/226767133-6e92931c-3f19-4302-83a6-63a1e51c38f8.png)
