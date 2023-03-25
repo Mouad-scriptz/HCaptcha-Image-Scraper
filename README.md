@@ -1,5 +1,5 @@
 # HCaptcha-Image-Scrapper
-A Fast hcaptcha image scrapper that scrapes captcha images and questions for what every you need those for.
+A Fast hcaptcha image scraper that scrapes captcha images and questions for what every you need those for.
 
 # How to use
 1. add proxies to proxies.txt (free ones work)

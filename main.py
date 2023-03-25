@@ -1,4 +1,4 @@
-import jwt, hashlib, math, time, random, os, threading, tls_client
+import jwt, hashlib, math, time, random, os, threading, tls_client, requests
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
@@ -64,7 +64,9 @@ class Scrapper():
     def __init__(self, site_key: str, host: str):
         self.sk = site_key
         self.host = host 
-        self.session = tls_client.Session(client_identifier="chrome_111",random_tls_extension_order=True)
+        #self.session = tls_client.Session(client_identifier="chrome_111",random_tls_extension_order=True)
+        self.session = requests.Session()
+
         self.session.headers={
             'authority': 'hcaptcha.com',
             'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
@@ -77,6 +79,7 @@ class Scrapper():
             "http": "http://"+proxy,
             "https": "http://"+proxy,
         }
+        self.start = round(time.time())
     def get_c(self):
         headers = {
             'accept': 'application/json',
@@ -92,7 +95,7 @@ class Scrapper():
             'sec-fetch-site': 'same-site',
         }
         params = {'v':v,'host':self.host,'sitekey':self.sk,'sc':'1','swa':'1'}
-        r = self.session.post('https://hcaptcha.com/checksiteconfig',params=params,headers=headers)
+        r = self.session.post('https://hcaptcha.com/checksiteconfig',params=params,headers=headers,timeout=5)
         c = r.json()["c"]
         c["type"] = "hsl"
         return c
@@ -124,7 +127,7 @@ class Scrapper():
             "n": hsl,
             "c": dumps(c,separators=(",",":"))
         }
-        r = self.session.post(f'https://hcaptcha.com/getcaptcha/{self.sk}',headers=headers,data=payload)
+        r = self.session.post(f'https://hcaptcha.com/getcaptcha/{self.sk}',headers=headers,data=payload,timeout=5)
         return r.json()
     def scrape_challenges(self):
         while True:
@@ -136,10 +139,10 @@ class Scrapper():
                 if not folder_name in os.listdir("images"):
                     os.mkdir(f"images/{folder_name}")
                 for i in captcha_data["tasklist"]:
-                    image = self.session.get(i["datapoint_uri"])
+                    image = self.session.get(i["datapoint_uri"],timeout=5).content
                     image_name = hashlib.md5(image).hexdigest()
                     f = open(f"images/{folder_name}/{image_name}.jpg","wb")
-                    f.write(image.content)
+                    f.write(image)
                     f.close()
                 f = open("questions.txt","a+")
                 if not question in f.read().splitlines():
