@@ -1,4 +1,4 @@
-# HCaptcha-Image-Scrapper
+# HCaptcha-Image-Scraper
 A Fast hcaptcha image scraper that scrapes captcha images and questions for what every you need those for.
 
 # How to use
