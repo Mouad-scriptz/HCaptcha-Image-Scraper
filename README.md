@@ -12,4 +12,4 @@ About 3k images in 5 minutes
 
 # Support 
 - Discord Server: https://discord.gg/Tct8fUVnZm
-- My Dicord: Mouad#2549
+- My Discord: Mouad#2549
