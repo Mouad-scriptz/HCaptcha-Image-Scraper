@@ -2,7 +2,43 @@ import jwt, hashlib, math, time, random, os, threading, tls_client, requests, os
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
+from colorama import Fore, init 
+init(convert=True,autoreset=True)
+print_lock = threading.Lock()
+def print_wl(text):
+    print_lock.acquire()
+    print(text)
+    print_lock.release()
+class colors:
+    reset = Fore.RESET
+    cyan = Fore.CYAN
+    magenta = Fore.MAGENTA
+    yellow = Fore.YELLOW; lyellow = Fore.LIGHTYELLOW_EX
+    red = Fore.RED; lred = Fore.LIGHTRED_EX
+    blue = Fore.BLUE; lblue = Fore.LIGHTBLUE_EX
+    green = Fore.GREEN; lgreen = Fore.LIGHTGREEN_EX
+class console:
+    def input(text:str=None):
+        content = input(
+            f"({colors.cyan}>{colors.reset}) {colors.lblue}{text if text else 'Input'}{colors.reset} >> {Fore.CYAN}"
+        )
+        print(colors.reset)
+        return content
+    
+    def success(text:str,content:str=None):
+        print_wl(
+            f"({colors.lgreen}+{colors.reset}) {colors.cyan}{text}{colors.reset}{': '+content if content else ''}"
+        )
 
+    def error(text:str):
+        print_wl(
+            f"({colors.lred}-{colors.reset}) {colors.lred}{text}{colors.reset}"
+        )
+
+    def info(text:str,content:str=None):
+        print_wl(
+            f"({colors.lyellow}~{colors.reset}) {colors.lyellow}{text}{colors.reset}{': '+content if content else ''}"
+        )
 def scrape_proxies():
     os.system("cls")
     urls_to_scrape=[
@@ -17,7 +53,7 @@ def scrape_proxies():
             f.write(proxies)
             f.close()
         num = len(proxies.split('\n'))
-        print(f"(+) Scraped: {i} | {num}")
+        console.success("Scraped",f"{i} | {num}")
     time.sleep(1)
     main()
 def generate_hsl(req):
@@ -88,7 +124,6 @@ def scrape_images():
             self.sk = site_key
             self.host = host 
             self.session = tls_client.Session(client_identifier="chrome_111",random_tls_extension_order=True)
-
             self.session.headers={
                 'authority': 'hcaptcha.com',
                 'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
@@ -99,7 +134,6 @@ def scrape_images():
                 "http": "http://"+self.proxy,
                 "https": "http://"+self.proxy,
             }
-            self.start = time.time()
         def get_c(self):
             headers = {
                 'accept': 'application/json',
@@ -160,20 +194,18 @@ def scrape_images():
                     if not folder_name in os.listdir("images"):
                         os.mkdir(f"images/{folder_name}")
 
-                    def download_n_save(image_name):
-                        try:
-                            sess = tls_client.Session(client_identifier="chrome_111")
-                            sess.proxies={
-                                "http": "http://"+self.proxy,
-                                "https": "http://"+self.proxy,
-                            }
-                            image = sess.get(i["datapoint_uri"],timeout_seconds=10).content
-                            image_name = hashlib.md5(image).hexdigest()
+                    def download_n_save(image_url):
+    
+                        image = requests.get(image_url).content
+                        image_name = hashlib.md5(image).hexdigest()
+                        if not image_name in os.listdir(f"images/{folder_name}/"):
                             f = open(f"images/{folder_name}/{image_name}.jpg","wb")
                             f.write(image)
                             f.close()
-                        except:
-                            pass
+                        else:
+                            console.info("Detected duplicate",image_name)
+
+
                     threads = []
                     for i in captcha_data["tasklist"]:
                         thread = threading.Thread(target=download_n_save, args=(i["datapoint_uri"],))
@@ -187,10 +219,12 @@ def scrape_images():
                         if question not in f.read():
                             f.write(question + "\n")
                         f.close()
-                    print(f"(+) Label: {folder_name} | Images: {len(captcha_data['tasklist'])} | Total: {len(os.listdir(f'images/{folder_name}'))} | {self.proxy} | {time.time()-start}s")
+                    console.success(
+                        "Label", f"{folder_name} | {colors.lblue}Images{colors.reset}: {len(captcha_data['tasklist'])} | {colors.cyan}Total{colors.reset}: {len(os.listdir(f'images/{folder_name}'))} | {colors.lblue}{self.proxy}{colors.reset} | {colors.magenta}{round(time.time()-start)}{colors.reset}s"
+                    )
                 except:
                     pass
-    threads = range(int(input("(>) Threads >> ")))
+    threads = range(int(console.input("Threads")))
     for _ in threads:
         threading.Thread(target=Scrapper("4c672d35-0701-42b2-88c3-78380b0db560","discord.com").scrape_challenges).start()
 
@@ -199,7 +233,7 @@ def main():
     print("Super-Nova | Scraper".center(os.get_terminal_size().columns))
     print("1 - [ Image Scraper ]".center(os.get_terminal_size().columns))
     print("2 - [ Proxy Scraper ]".center(os.get_terminal_size().columns))
-    inputed = int(input("(>) Input >> "))
+    inputed = int(console.input())
     if inputed == 2:
         scrape_proxies()
     elif inputed == 1:
