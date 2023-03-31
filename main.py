@@ -2,7 +2,7 @@ import jwt, hashlib, math, time, random, os, threading, tls_client, requests, os
 from python_ghost_cursor import path
 from datetime import datetime
 from json import dumps
-from colorama import Fore, init 
+from colorama import Fore, init, Style
 init(convert=True,autoreset=True)
 print_lock = threading.Lock()
 def print_wl(text):
